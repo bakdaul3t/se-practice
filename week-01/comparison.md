@@ -9,17 +9,17 @@
 ## 1. Facts
 
 | | Manual (Part 1) | Rocket (Part 2) |
-| --- |-----------------|---------------|
-| Language / stack used | Python          |               | |
-| Time to first version that ran | 40 minut        |               |
-| Time to all 4 test cases passing | 1 hour 26 minut |               |
-| Number of attempts / prompts needed | C               |               |
-| Lines of code you actually wrote |                 |               |
-| Did it handle invalid marks (case B)? |                 |               |
-| Did it handle an empty list (case D)? |                 |               |
-| Did it use the ≥ 50 pass threshold? |                 |               |
-| Output format matches the spec? |                 |               |
-| Can you explain every line of it? |                 |               |
+| --- |-----------------|-----------------|
+| Language / stack used | Python          | TypeScript      | |
+| Time to first version that ran | 40 minut        | 3 min           |
+| Time to all 4 test cases passing | 1 hour 26 minut | 4 min           |
+| Number of attempts / prompts needed | C               | No              |
+| Lines of code you actually wrote | 33              | 442             |
+| Did it handle invalid marks (case B)? | Yes             | yes             |
+| Did it handle an empty list (case D)? | yes             | yes             |
+| Did it use the ≥ 50 pass threshold? | yes             | yes             |
+| Output format matches the spec? | yes             | yes             |
+| Can you explain every line of it? | Yes             | no              |
 
 ## 2. Test results
 
