@@ -1,0 +1,82 @@
+
+@startuml
+title Course Registration - Sequence Diagram
+
+autonumber
+
+actor Student
+boundary "Course Catalog UI" as UI
+control "Registration Service" as RS
+database "Registration Database" as DB
+
+== Browse Catalog (US-01) ==
+
+Student -> UI: Browse offerings(semester)
+UI -> DB: Get offerings for semester
+DB --> UI: Course code, title, offering,\ncapacity, enrollment count
+UI -> UI: Calculate available places\n= capacity - enrollment count
+UI --> Student: Display catalog with available places
+
+note over Student, DB
+Viewing the catalog does not reserve a place.
+No Enrollment is created or changed.
+AC-01, AC-02
+end note
+
+== Register for Offering (US-02, US-03) ==
+
+Student -> UI: Select offering and request registration
+UI -> RS: register(studentId, offeringId)
+
+note over RS, DB
+ATOMIC TRANSACTION
+Lock the selected offering or use equivalent
+serializable concurrency control.
+All checks and creation occur atomically.
+Competing requests cannot take the same last place.
+end note
+
+RS -> DB: BEGIN TRANSACTION
+RS -> DB: Lock offering and read current state
+DB --> RS: Capacity, current enrollment count
+
+RS -> DB: Check existing Enrollment\n(studentId, offeringId)
+DB --> RS: Duplicate status
+
+alt Already enrolled (AC-06)
+    RS -> DB: ROLLBACK
+    RS --> UI: "already enrolled"
+    UI --> Student: Display rejection
+
+else Not already enrolled
+    alt Course full (AC-05, AC-04 loser)
+        RS -> DB: ROLLBACK
+        RS --> UI: "course full"
+        UI --> Student: Display rejection
+
+    else Place available (AC-03, AC-04 winner)
+        RS -> DB: Create one Enrollment\n(studentId, offeringId)
+        DB --> RS: Enrollment created
+
+        note over RS, DB
+        Enrollment count increases by 1.
+        Available places decrease by 1.
+        end note
+
+        RS -> DB: COMMIT
+        DB --> RS: Transaction committed
+
+        RS --> UI: Registration confirmed
+        UI --> Student: Display confirmation\nand updated availability
+    end
+end
+
+note over RS, DB
+Rejection: no Enrollment created;
+enrollment count remains unchanged.
+
+Success: exactly one Enrollment created;
+enrollment count never exceeds capacity.
+end note
+
+@enduml
