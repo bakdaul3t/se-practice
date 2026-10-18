@@ -1,0 +1,77 @@
+@startuml
+title Course Registration - Domain Class Diagram
+
+skinparam classAttributeIconSize 0
+hide methods
+
+class Student {
+    +studentId: String
+    +name: String
+}
+
+class Course {
+    +courseCode: String
+    +title: String
+}
+
+' why: Semester explicitly represents the academic term to which a CourseOffering belongs and supports semester-specific catalog browsing under R1.
+class Semester {
+    +semesterId: String
+    +name: String
+    +year: Integer
+}
+
+class CourseOffering {
+    +offeringId: String
+    +section: String
+    +semester: Semester
+    +capacity: Integer
+    +/enrollmentCount: Integer
+    +/availablePlaces: Integer
+}
+
+class Enrollment {
+    +enrollmentId: String
+    +createdAt: DateTime
+}
+
+Course "1" -- "0..*" CourseOffering : has
+Semester "1" -- "0..*" CourseOffering : schedules
+
+Student "1" -- "0..*" Enrollment : holds
+CourseOffering "1" -- "0..*" Enrollment : receives
+
+note right of CourseOffering
+R2 - Capacity constraint:
+capacity > 0
+
+enrollmentCount =
+number of linked Enrollments
+
+availablePlaces =
+capacity - enrollmentCount
+
+0 <= enrollmentCount <= capacity
+
+/ indicates a derived attribute.
+end note
+
+note bottom of Enrollment
+R3 - Uniqueness constraint:
+Each (studentId, offeringId)
+pair must be unique.
+
+A Student may have at most
+one Enrollment per CourseOffering.
+
+The database enforces uniqueness
+of (studentId, offeringId).
+end note
+
+note bottom of Student
+The Student is already signed in
+before browsing or registration.
+Authentication is out of scope.
+end note
+
+@enduml
