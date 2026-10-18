@@ -1,3 +1,108 @@
-' SIS #02 — your FINAL sequence diagram goes here, as PlantUML (@startuml … @enduml).
-' Start from the AI's original in models/original/sequence.puml, apply your accepted review
-' decisions, then render it to models/img/sequence.png (or .svg). README section 5.
+@startuml
+title Course Registration - Sequence Diagram
+
+autonumber
+
+actor Student
+boundary "Course Catalog UI" as UI
+control "Registration Service" as RS
+database "Registration Database" as DB
+
+== Browse Catalog (US-01) ==
+
+Student -> UI: Browse offerings(semester)
+UI -> DB: Get offerings for semester
+DB --> UI: Course code, title, offering,\ncapacity, enrollment count
+UI -> UI: Calculate available places\n= capacity - enrollment count
+UI --> Student: Display course code, title,\noffering and available places
+
+note over Student, DB
+R1 - AC-01, AC-02
+Viewing the catalog does not reserve a place.
+No Enrollment is created or changed.
+Catalog availability may become stale.
+end note
+
+== Register for Offering (US-02, US-03) ==
+
+Student -> UI: Select offering and request registration
+UI -> RS: register(studentId, offeringId)
+
+note over RS, DB
+R2, R3, R4 - ATOMIC TRANSACTION
+Protect the selected offering using a lock
+or equivalent serializable concurrency control.
+
+Hold protection until COMMIT or ROLLBACK.
+Duplicate and current-capacity checks, followed
+by Enrollment creation if eligible, execute
+under the same protection.
+
+The database enforces uniqueness of
+(studentId, offeringId).
+
+Competing requests cannot take the same
+last available place. AC-04
+end note
+
+RS -> DB: BEGIN TRANSACTION
+RS -> DB: Lock offering and read current state
+DB --> RS: Capacity, current enrollment count
+
+RS -> DB: Check existing Enrollment\n(studentId, offeringId)
+DB --> RS: Duplicate status
+
+note over RS
+Guard meanings (evaluated in order):
+already enrolled = duplicate exists
+course full = no duplicate AND
+  enrollment count >= capacity
+not enrolled and places left =
+  no duplicate AND enrollment count < capacity
+
+Duplicate rejection takes priority over
+capacity rejection as a model design choice.
+end note
+
+alt already enrolled
+    RS -> DB: ROLLBACK
+    RS --> UI: "already enrolled"
+    UI --> Student: Display rejection
+
+else course full
+    RS -> DB: ROLLBACK
+    RS --> UI: "course full"
+    UI --> Student: Display rejection
+
+else not enrolled and places left
+    RS -> DB: Create exactly one Enrollment\n(studentId, offeringId)
+    DB --> RS: Enrollment created,\nupdated enrollment count,\nupdated available places
+
+    note over RS, DB
+    R4 - AC-03, AC-04
+    Enrollment count increases by 1.
+    Available places decrease by 1.
+    Exactly one Enrollment links the
+    Student and CourseOffering.
+    end note
+
+    RS -> DB: COMMIT
+    DB --> RS: Transaction committed
+
+    RS --> UI: Registration confirmed,\nupdated available places
+    UI --> Student: Display confirmation\nand updated availability
+end
+
+note over RS, DB
+R2, R3, R4, R5
+
+Rejection (AC-04 loser, AC-05, AC-06):
+No Enrollment created;
+enrollment count remains unchanged.
+
+Success (AC-03, AC-04 winner):
+Exactly one Enrollment created;
+enrollment count never exceeds capacity.
+end note
+
+@enduml
