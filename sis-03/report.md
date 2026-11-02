@@ -11,15 +11,15 @@
      Reuse: week-05 if code/original/booking_v1.py is your Week 05 v1, copied unedited;
      week-06 if web/original/ is your Week 06 v1 export; fresh if you generated it for this SIS. -->
 
-| Item | Value |
-| --- | --- |
-| Coding assistant (tool) | (write here) |
-| Coding assistant model | (write here) |
+| Item | Value  |
+| --- |--------|
+| Coding assistant (tool) | ChatGPT |
+| Coding assistant model | GPT-6  |
 | Bolt.new model | (write here) |
 | Bolt project link | (write here) |
-| Language | (write here) |
-| Path | (write here) |
-| Python v1 from | (write here) |
+| Language | Python |
+| Path | A      |
+| Python v1 from | fresh  |
 | Web v1 from | (write here) |
 
 ## 2. Baseline — before any new AI exchange
@@ -79,11 +79,14 @@
      Path B). Quote the condition exactly. AC1-AC4 must all appear in the AC column. -->
 
 | Branch in v1 (quoted) | AC | Satisfies it? | Why |
-| --- | --- | --- | --- |
-| (write here) | (write here) | (write here) | (write here) |
-| (write here) | (write here) | (write here) | (write here) |
-| (write here) | (write here) | (write here) | (write here) |
-| (write here) | (write here) | (write here) | (write here) |
+|---|---|---|---|
+| `if start < 0 or end > 1440:` | AC1 | Partly | It checks some time limits, but not all invalid inputs. |
+| `if start >= end:` | AC1 | Yes | It rejects a start time that is not before the end time. |
+| `if start < now:` | AC1 | No | It allows a booking that starts exactly now. T6 failed. |
+| `if end - start > 120:` | AC2 | Yes | It rejects bookings longer than 120 minutes. T4 and T5 passed. |
+| `if blocked:` | AC3 | Yes | It rejects a booking when the room is blocked. T3 passed. |
+| `if start <= booking_end and end >= booking_start:` | AC4 | No | It rejects bookings that only touch at an endpoint. T1 and T11 failed. |
+| `return True` | AC1–AC4 | Partly | It returns True after all checks, but some checks have mistakes. |
 
 ## 4. Prototype v1 in Bolt.new
 
@@ -116,19 +119,19 @@
      Never write a result you did not observe. -->
 
 | Case | Name | Input | Expected | Python v1 | Python final | Page v1 | Page final |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| T1 | Touching | 660–720 | Available | | | | |
-| T2 | Overlap | 630–690 | Unavailable | | | | |
-| T3 | Blocked | 660–720, blocked | Unavailable | | | | |
-| T4 | Exactly 120 min | 720–840 | Available | | | | |
-| T5 | 121 min | 720–841 | Unavailable | | | | |
-| T6 | Starts now | 540–570 | Unavailable | | | | |
-| T7 | Reversed | 720–660 | Unavailable | | | | |
-| T8 | Ends at midnight | 1380–1440 | Available | | | | |
-| T9 | Past midnight | 1380–1441 | Unavailable | | | | |
-| T10 | Second booking | 720–780, existing (600–660), (700–760) | Unavailable | | | | |
-| T11 | Same check twice | 660–720, twice | Available | | | | |
-| T12 | Narrow screen | T1 at ~375 px wide | Available | n/a | n/a | | |
+| --- | --- | --- | --- |-----------|--------------| --- | --- |
+| T1 | Touching | 660–720 | Available | False     | True         | | |
+| T2 | Overlap | 630–690 | Unavailable | False     | False        | | |
+| T3 | Blocked | 660–720, blocked | Unavailable | False     | False        | | |
+| T4 | Exactly 120 min | 720–840 | Available | True      | True         | | |
+| T5 | 121 min | 720–841 | Unavailable | False     | False        | | |
+| T6 | Starts now | 540–570 | Unavailable | True      | False        | | |
+| T7 | Reversed | 720–660 | Unavailable | False     | False        | | |
+| T8 | Ends at midnight | 1380–1440 | Available | True      | True         | | |
+| T9 | Past midnight | 1380–1441 | Unavailable | False     | False        | | |
+| T10 | Second booking | 720–780, existing (600–660), (700–760) | Unavailable | False     | False        | | |
+| T11 | Same check twice | 660–720, twice | Available | False     | True         | | |
+| T12 | Narrow screen | T1 at ~375 px wide | Available | n/a       | n/a          | | |
 
 ## 6. Traceability
 
@@ -309,7 +312,25 @@
      code/ — the part ending in "Ran N tests" and OK or FAILED. -->
 
 ~~~~text
-(paste here)
+test_T10_second_booking (test_booking.TestBooking.test_T10_second_booking) ... ok
+test_T11_same_check_twice (test_booking.TestBooking.test_T11_same_check_twice) ... ok
+test_T1_touching (test_booking.TestBooking.test_T1_touching) ... ok
+test_T2_overlap (test_booking.TestBooking.test_T2_overlap) ... ok
+test_T3_blocked (test_booking.TestBooking.test_T3_blocked) ... ok
+test_T4_exactly_120 (test_booking.TestBooking.test_T4_exactly_120) ... ok
+test_T5_121_minutes (test_booking.TestBooking.test_T5_121_minutes) ... ok
+test_T6_starts_now (test_booking.TestBooking.test_T6_starts_now) ... ok
+test_T7_reversed (test_booking.TestBooking.test_T7_reversed) ... ok
+test_T8_midnight (test_booking.TestBooking.test_T8_midnight) ... ok
+test_T9_past_midnight (test_booking.TestBooking.test_T9_past_midnight) ... ok
+test_invalid_start_type (test_booking.TestBooking.test_invalid_start_type) ... ok
+test_negative_start (test_booking.TestBooking.test_negative_start) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.000s
+
+OK
+
 ~~~~
 
 ### 12.2 Path B only — three faults you planted
