@@ -5,6 +5,119 @@ from booking import can_book
 
 class TestBooking(unittest.TestCase):
 
+    def test_existing_booking_order_not_changed(self):
+        existing = [(900, 960), (600, 660)]
+        before = existing.copy()
+
+        can_book(720, 780, 540, False, existing)
+
+        self.assertEqual(existing, before)
+
+    def test_existing_booking_list_not_extended(self):
+        existing = [(600, 660)]
+        before = existing.copy()
+
+        result = can_book(720, 780, 540, False, existing)
+
+        self.assertTrue(result)
+        self.assertEqual(len(existing), len(before))
+        self.assertEqual(existing, before)
+
+    def test_existing_not_modified_when_blocked(self):
+        existing = [(600, 660)]
+        before = existing.copy()
+
+        can_book(720, 780, 540, True, existing)
+
+        self.assertEqual(existing, before)
+
+
+    def test_start_at_last_minute(self):
+        self.assertTrue(
+            can_book(1439, 1440, 540, False, [])
+        )
+
+    def test_zero_duration(self):
+        self.assertFalse(
+            can_book(700, 700, 540, False, [])
+        )
+
+    def test_existing_list_unchanged_when_available(self):
+        existing = [(600, 660), (900, 960)]
+        before = existing.copy()
+
+        result = can_book(720, 780, 540, False, existing)
+
+        self.assertTrue(result)
+        self.assertEqual(existing, before)
+
+    def test_existing_list_unchanged_when_unavailable(self):
+        existing = [(600, 660), (900, 960)]
+        before = existing.copy()
+
+        result = can_book(630, 650, 540, False, existing)
+
+        self.assertFalse(result)
+        self.assertEqual(existing, before)
+
+    def test_start_before_zero_with_now_zero(self):
+        self.assertFalse(
+            can_book(-1, 30, 0, False, [])
+        )
+
+    def test_end_before_start(self):
+        self.assertFalse(
+            can_book(900, 899, 540, False, [])
+        )
+
+    def test_start_greater_than_day_limit(self):
+        self.assertFalse(
+            can_book(1441, 1442, 540, False, [])
+        )
+
+    def test_existing_unchanged_on_blocked(self):
+        existing = [(600, 660), (900, 960)]
+        before = existing.copy()
+
+        result = can_book(720, 780, 540, True, existing)
+
+        self.assertFalse(result)
+        self.assertEqual(existing, before)
+
+    def test_existing_unchanged_after_two_calls(self):
+        existing = [(600, 660)]
+        before = existing.copy()
+
+        first = can_book(660, 720, 540, False, existing)
+        second = can_book(660, 720, 540, False, existing)
+
+        self.assertTrue(first)
+        self.assertTrue(second)
+        self.assertEqual(existing, before)
+
+    def test_start_at_midnight(self):
+        self.assertFalse(
+            can_book(0, 60, 540, False, [])
+        )
+
+    def test_request_contains_booking(self):
+        self.assertFalse(
+            can_book(600, 720, 540, False, [(630, 660)])
+        )
+
+    def test_existing_list_unchanged(self):
+        existing = [(600, 660), (900, 960)]
+        before = existing.copy()
+
+        can_book(720, 780, 540, False, existing)
+
+        self.assertEqual(existing, before)
+
+    def test_touching_at_end(self):
+        self.assertTrue(
+            can_book(660, 720, 540, False, [(720, 780)])
+        )
+
     def setUp(self):
         self.now = 540
         self.existing = [(600, 660)]
