@@ -1,0 +1,57 @@
+
+{
+  "name": "check_room",
+  "description": "Checks whether a room is available for a requested time interval. All times are represented as whole minutes since midnight, between 0 and 1440. The tool checks the current time, room blocked status, and existing bookings. It only checks availability and does not save or create a booking.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "start": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1440
+      },
+      "end": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1440
+      },
+      "now": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1440
+      },
+      "blocked": {
+        "type": "boolean"
+      },
+      "bookings": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "start": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1440
+            },
+            "end": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1440
+            }
+          },
+          "required": ["start", "end"],
+          "additionalProperties": false
+        }
+      }
+    },
+    "required": [
+      "start",
+      "end",
+      "now",
+      "blocked",
+      "bookings"
+    ],
+    "additionalProperties": false
+  }
+}
+
