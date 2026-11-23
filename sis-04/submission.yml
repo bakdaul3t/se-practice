@@ -1,0 +1,45 @@
+
+schema: 1
+assignment: "sis-04"
+
+student:
+  name: "Malik Bakdaulet"
+  student_id: "24B031913"
+  group: "16:00-19:00"
+  github: "bakdaul3t"
+
+assistant:
+  tool: "ChatGPT"
+  model: "GPT-6"
+
+project:
+  start_from: "starter"
+  baseline_commit: "7e07340"
+  language: "ts"
+  vitest: "3.2.7"
+
+counts:
+  rooms: 4
+  tests_original: 0
+  tests_final: 15
+  risks: 3
+  exchanges: 3
+
+checker:
+  pass: 33
+  fail: 0
+  error: 0
+  commit: "5600606"
+  known_fails: []
+
+review_findings:
+  - "AC4: touching bookings are allowed, while overlapping bookings are rejected."
+  - "F2: equipment.every() ensures that every selected equipment item is required."
+  - "F5: checkRoom() uses the selected room's own bookings, preventing incorrect availability results."
+  - "App.tsx: booking validation was extracted into booking.ts to avoid duplicated business rules."
+
+honesty:
+  baseline_unchanged: yes
+  runs_unedited: yes
+  no_invented_metrics: yes
+  ai_usage_disclosed: yes

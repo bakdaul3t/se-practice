@@ -1,0 +1,38 @@
+
+@startuml
+title SIS 04 - Architecture After Refactoring
+
+package "src" {
+  component "main.tsx" as Main
+  component "App.tsx\nReact UI" as App
+  component "rooms.ts\nRoom Catalog and Types" as Rooms
+  component "filter.ts\nfilterRooms()" as Filter
+  component "booking.ts\ncanBook() / checkRoom()" as Booking
+  component "index.css\nResponsive Styles" as CSS
+}
+
+package "Vitest Tests" {
+  component "booking.test.ts" as BookingTest
+  component "filter.test.ts" as FilterTest
+}
+
+Main --> App
+App --> Rooms : reads catalog
+App --> Filter : filters rooms
+App --> Booking : checks availability
+App --> CSS : uses styles
+
+Filter --> Rooms : imports Room type
+Booking --> Rooms : imports Room type
+
+BookingTest --> Booking : tests
+FilterTest --> Filter : tests
+FilterTest --> Booking : integration tests
+
+note right of App
+  UI and state management only.
+  Business rules are separated
+  into reusable modules.
+end note
+
+@enduml

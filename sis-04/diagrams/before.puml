@@ -1,0 +1,31 @@
+
+@startuml
+title SIS 04 - Architecture Before Refactoring
+
+package "src" {
+  component "App.tsx" as App
+  component "main.tsx" as Main
+  component "index.css" as CSS
+}
+
+rectangle "App.tsx responsibilities" {
+  component "React UI" as UI
+  component "Room Data (ROOMS)" as Rooms
+  component "Availability Logic (check)" as Booking
+  component "Time Conversion" as Time
+}
+
+Main --> App
+App --> CSS
+App --> UI
+App --> Rooms
+App --> Booking
+App --> Time
+
+note right of App
+  Multiple responsibilities
+  in one component.
+  Difficult to test separately.
+end note
+
+@enduml
