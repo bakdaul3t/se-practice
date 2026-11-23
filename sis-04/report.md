@@ -13,14 +13,14 @@
      git rev-parse --short HEAD right after that commit. It is your "initial version". -->
 
 | Item | Value |
-| --- | --- |
-| Assistant (tool) | (write here) |
-| Assistant model | (write here) |
-| Starting point | (write here) |
-| Baseline commit | (write here) |
-| Language (ts or js) | (write here) |
-| Vitest version | (write here) |
-| Where I ran the tests | (write here) |
+| --- |  |
+| Assistant (tool) | ChatGPT |
+| Assistant model | GPT-6 |
+| Starting point | starter |
+| Baseline commit | 7e07340 |
+| Language (ts or js) | ts |
+| Vitest version | 3.2.7 |
+| Where I ran the tests | PyCharm Terminal, macOS, sis-04/app |
 
 ### 1.1 Baseline run
 
@@ -29,7 +29,12 @@
      "No test files found". That is your honest "original" number, 0/0. -->
 
 ```text
-(paste here)
+RUN  v3.2.7 /Users/marius/PycharmProjects/se-practice/sis-04/app
+
+No test files found, exiting with code 1
+
+include: **/*.{test,spec}.?(c|m)[jt]s?(x)
+exclude: **/node_modules/**, **/dist/**, **/cypress/**, **/.{idea,git,cache,output,temp}/**, **/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build,eslint,prettier}.config.*
 ```
 
 ## 2. Context for the assistant
@@ -40,7 +45,21 @@
      they do. A tree is fine:  src/App.tsx — the page, holds the rooms and the form … -->
 
 ```text
-(paste here)
+sis-04/
+├── app/
+│   ├── src/
+│   │   ├── App.tsx       - React UI, room data and booking validation
+│   │   ├── main.tsx      - React application entry point
+│   │   └── index.css     - Application styles
+│   ├── package.json     - Dependencies and npm scripts
+│   └── vite.config.ts   - Vite configuration
+├── starter/             - Original application template
+├── diagrams/            - Before and after architecture diagrams
+├── evidence/            - Screenshots of application behavior
+├── tests/               - SIS validation scripts
+├── report.md            - Project report
+├── AI_USAGE.md          - AI assistance disclosure
+└── submission.yml       - Submission metadata
 ```
 
 ### 2.2 The context message as sent
@@ -49,7 +68,15 @@
      (no login, payments, live APIs or database; fictional data only). Unedited. -->
 
 ```text
-(paste here)
+I'm working on SIS #04 using the provided TypeScript starter. The baseline commit is 7e07340. My repository has app/src/App.tsx, main.tsx and index.css. App.tsx currently contains the room data, availability rules and React UI.
+
+Please analyze the codebase for at least three maintainability risks and propose a numbered improvement plan before modifying the source code.
+
+Preserve AC1–AC6: valid time inputs, a maximum booking duration of 120 minutes, blocked rooms unavailable, touching bookings allowed but overlapping bookings rejected, immutable booking data, and clear responsive feedback.
+
+Implement F1–F5: capacity greater than or equal to attendees, ALL selected equipment required, blocked rooms never available, clear empty state, and checking the selected room's own bookings when the selection changes.
+
+Use at least four fictional rooms, separate rooms.ts, booking.ts, filter.ts and UI, keep the application in TypeScript, use Vitest, and do not add login, payments, live APIs or a database. Do not modify app/src until the analysis and plan are committed.
 ```
 
 ## 3. Codebase analysis (Task 1)
@@ -62,24 +89,27 @@
 
 | # | Risk | Where (file / function) | Evidence | Priority |
 | --- | --- | --- | --- | --- |
-| 1 | (write here) | (write here) | (write here) | High / Medium / Low |
-| 2 | (write here) | (write here) | (write here) | High / Medium / Low |
-| 3 | (write here) | (write here) | (write here) | High / Medium / Low |
+| 1 | Mixed responsibilities | `src/App.tsx`, `App()` and `check()` | Room data, booking validation, and React UI are located in the same component. | High |
+| 2 | Difficult unit testing | `src/App.tsx`, `check()` | Availability rules depend on React state, and the baseline Vitest run found no test files. | High |
+| 3 | Stale availability result | `src/App.tsx`, room selector | The room selector calls only `setRoomId()`, without clearing or recalculating the previous result. | Medium |
 
 ### 3.2 Improvement plan — before editing
 
 <!-- Numbered, in the order you will do it, smallest safe step first. Written BEFORE you change
      code: the commit that adds this section comes before the commit that changes app/src. -->
 
-1. (write here)
-2. (write here)
-3. (write here)
+1. Extract room data and types from App.tsx into rooms.ts. Add at least four fictional rooms with capacity, equipment, blocked status, and bookings.
+2. Extract booking validation into booking.ts using canBook() and checkRoom(). Preserve AC1-AC6, including the 120-minute limit and overlap rules.
+3. Create filter.ts with filterRooms() to implement capacity and equipment filtering.
+4. Refactor App.tsx to use the extracted modules, clear stale results, and display an empty state when no rooms match.
+5. Add Vitest tests covering AC1-AC5, F1-F5, B1-B6, and INT.
+6. Run all tests, create before/after diagrams, collect five screenshots, and document measured results.
 
 ### 3.3 One AI suggestion I rejected or modified
 
 | Suggestion (as the assistant made it) | Decision | Why — with the AC, F-rule, test or file behind it |
 | --- | --- | --- |
-| (write here) | Rejected / Modified | (write here) |
+| Exclude blocked rooms through filter.ts. | Modified | Filtering alone cannot guarantee F3. I will also enforce the blocked-room rule in booking.ts through canBook() and checkRoom(), so a blocked room can never be reported available. |
 
 ## 4. Feature extension (Task 2)
 
@@ -200,25 +230,42 @@
 
 ### 8.1 Exchange 1
 
-**Tool and model:** (write here)
-**Date:** (write here)
-**Purpose:** (write here)
+**Tool and model:** ChatGPT — GPT-6
+**Date:** 2026-11-23
+**Purpose:** Analyze the starter application and identify maintainability risks before refactoring.
 
 **Prompt:**
 
 ```text
-(paste here)
+I'm working on SIS #04 using the provided TypeScript starter. The baseline commit is 7e07340. My repository has app/src/App.tsx, main.tsx and index.css. App.tsx currently contains the room data, availability rules and React UI.
+
+Please analyze the codebase for at least three maintainability risks and propose a numbered improvement plan before modifying the source code.
+
+Preserve AC1–AC6: valid time inputs, a maximum booking duration of 120 minutes, blocked rooms unavailable, touching bookings allowed but overlapping bookings rejected, immutable booking data, and clear responsive feedback.
+
+Implement F1–F5: capacity greater than or equal to attendees, ALL selected equipment required, blocked rooms never available, clear empty state, and checking the selected room's own bookings when the selection changes.
+
+Use at least four fictional rooms, separate rooms.ts, booking.ts, filter.ts and UI, keep the application in TypeScript, use Vitest, and do not add login, payments, live APIs or a database. Do not modify app/src until the analysis and plan are committed.
 ```
 
 **Output used:**
 
 ```text
-(paste here)
+The assistant identified six preliminary maintainability risks:
+R1 - Mixed responsibilities in App.tsx.
+R2 - Business logic coupled with React UI, making testing difficult.
+R3 - Potential mutation of booking data.
+R4 - Risk of incorrect availability checks.
+R5 - Increasing complexity of room filtering.
+R6 - Insufficient UI feedback.
+
+The assistant proposed extracting rooms.ts, booking.ts and filter.ts,
+refactoring App.tsx, adding Vitest tests, and verifying AC1-AC6 and F1-F5.
 ```
 
-**Problems found:** (write here)
-**Changes made:** (write here)
-**Verified by:** (write here)
+**Problems found:** The initial AI analysis included hypothetical risks. I checked App.tsx and confirmed mixed responsibilities, difficult isolated testing, and stale availability results.
+**Changes made:** Documented the verified risks and created a numbered improvement plan in Sections 2 and 3. No application source code was modified.
+**Verified by:** Manual inspection of sis-04/app/src/App.tsx and the baseline Vitest run, which reported "No test files found".
 
 ### 8.2 Exchange 2
 
